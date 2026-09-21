@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Video Looping</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}
+video{width:100%;height:100%;object-fit:contain;background:#000}
+#status{position:fixed;left:0;right:0;bottom:0;padding:8px;text-align:center;
+font:14px Arial;color:#fff;background:rgba(0,0,0,.65);display:none}
+</style>
+</head>
+<body>
+<video id="v" autoplay muted playsinline></video>
+<div id="status"></div>
+<script>
+const playlist = [
+  "https://drive.google.com/uc?export=download&id=1FdTgd8T4raMFVbfTtX98M5GLQYMgOgVk",
+  "https://drive.google.com/uc?export=download&id=1JwWhALagE1ifqHvf-Omi_OurIfXjKBCe",
+  "https://drive.google.com/uc?export=download&id=1KxGBbHQFQkYTWqB950ftc4ValpMty6GQ",
+  "https://drive.google.com/uc?export=download&id=1MKnvsDbkZxJSnLv7n-vaHqC-dEI128Wg",
+  "https://drive.google.com/uc?export=download&id=1bRtNx-o814C-MmASIflStRPj6Iq2X1lv",
+  "https://drive.google.com/uc?export=download&id=1ipEd6PWxPyiBJ6LKg-EdbpMTpBPDdhUZ",
+  "https://drive.google.com/uc?export=download&id=1rUcfKzFiGhdjIu5xk_69h_588Wr54vRi"
+];
+let n = 0;
+const v = document.getElementById('v');
+const status = document.getElementById('status');
+
+function playCurrent() {
+  v.src = playlist[n];
+  v.load();
+  v.play().catch(() => {
+    status.style.display = 'block';
+    status.textContent = 'Tekan tombol Play/OK pada remote untuk memulai.';
+  });
+}
+
+v.addEventListener('ended', () => {
+  n = (n + 1) % playlist.length;
+  playCurrent();
+});
+
+v.addEventListener('error', () => {
+  status.style.display = 'block';
+  status.textContent = 'Video tidak dapat dibuka. Pastikan file Google Drive dibagikan: Siapa saja yang memiliki link → Pelihat.';
+});
+
+v.addEventListener('playing', () => status.style.display = 'none');
+playCurrent();
+</script>
+</body>
+</html>
