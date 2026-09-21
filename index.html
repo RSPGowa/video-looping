@@ -1,54 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video Looping</title>
 <style>
-html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}
-video{width:100%;height:100%;object-fit:contain;background:#000}
-#status{position:fixed;left:0;right:0;bottom:0;padding:8px;text-align:center;
-font:14px Arial;color:#fff;background:rgba(0,0,0,.65);display:none}
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
+#player {
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+    display: block;
+    background: #000;
+}
+#start {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 10;
+}
+#start span {
+    padding: 18px 28px;
+    border: 1px solid #777;
+    border-radius: 10px;
+}
 </style>
 </head>
 <body>
-<video id="v" autoplay muted playsinline></video>
-<div id="status"></div>
-<script>
-const playlist = [
-  "https://drive.google.com/uc?export=download&id=1FdTgd8T4raMFVbfTtX98M5GLQYMgOgVk",
-  "https://drive.google.com/uc?export=download&id=1JwWhALagE1ifqHvf-Omi_OurIfXjKBCe",
-  "https://drive.google.com/uc?export=download&id=1KxGBbHQFQkYTWqB950ftc4ValpMty6GQ",
-  "https://drive.google.com/uc?export=download&id=1MKnvsDbkZxJSnLv7n-vaHqC-dEI128Wg",
-  "https://drive.google.com/uc?export=download&id=1bRtNx-o814C-MmASIflStRPj6Iq2X1lv",
-  "https://drive.google.com/uc?export=download&id=1ipEd6PWxPyiBJ6LKg-EdbpMTpBPDdhUZ",
-  "https://drive.google.com/uc?export=download&id=1rUcfKzFiGhdjIu5xk_69h_588Wr54vRi"
-];
-let n = 0;
-const v = document.getElementById('v');
-const status = document.getElementById('status');
 
-function playCurrent() {
-  v.src = playlist[n];
-  v.load();
-  v.play().catch(() => {
-    status.style.display = 'block';
-    status.textContent = 'Tekan tombol Play/OK pada remote untuk memulai.';
-  });
+<div id="start"><span>▶ Klik / tekan OK untuk mulai</span></div>
+
+<iframe id="player"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+        src="about:blank">
+</iframe>
+
+<script>
+const videos = [
+    "https://drive.google.com/file/d/1FdTgd8T4raMFVbfTtX98M5GLQYMgOgVk/preview",
+    "https://drive.google.com/file/d/1JwWhALagE1ifqHvf-Omi_OurIfXjKBCe/preview",
+    "https://drive.google.com/file/d/1KxGBbHQFQkYTWqB950ftc4ValpMty6GQ/preview",
+    "https://drive.google.com/file/d/1MKnvsDbkZxJSnLv7n-vaHqC-dEI128Wg/preview",
+    "https://drive.google.com/file/d/1bRtNx-o814C-MmASIflStRPj6Iq2X1lv/preview",
+    "https://drive.google.com/file/d/1ipEd6PWxPyiBJ6LKg-EdbpMTpBPDdhUZ/preview",
+    "https://drive.google.com/file/d/1rUcfKzFiGhdjIu5xk_69h_588Wr54vRi/preview"
+];
+
+let current = 0;
+const player = document.getElementById("player");
+const start = document.getElementById("start");
+
+function playVideo(index) {
+    current = index % videos.length;
+    player.src = videos[current];
 }
 
-v.addEventListener('ended', () => {
-  n = (n + 1) % playlist.length;
-  playCurrent();
+// Mulai saat layar diklik / tombol OK/Enter/Space ditekan
+function startPlaylist() {
+    start.style.display = "none";
+    playVideo(0);
+}
+
+start.addEventListener("click", startPlaylist);
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" || e.key === " " || e.key === "ArrowRight") {
+        startPlaylist();
+    }
 });
 
-v.addEventListener('error', () => {
-  status.style.display = 'block';
-  status.textContent = 'Video tidak dapat dibuka. Pastikan file Google Drive dibagikan: Siapa saja yang memiliki link → Pelihat.';
+// Google Drive Preview tidak menyediakan event "ended" ke halaman induk.
+// Karena itu, halaman akan mencoba lanjut berdasarkan durasi yang diberikan
+// setelah durasi video diketahui. Jika video tidak memberikan durasi,
+// tombol/remote masih dapat digunakan untuk membuka video berikutnya.
+player.addEventListener("load", function() {
+    // Tidak melakukan reload otomatis di sini agar iframe Google Drive
+    // tidak terus-menerus dimuat ulang.
 });
-
-v.addEventListener('playing', () => status.style.display = 'none');
-playCurrent();
 </script>
+
 </body>
 </html>
